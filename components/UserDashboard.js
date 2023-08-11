@@ -1,9 +1,11 @@
 import { useAuth } from "@/context/AuthContext";
 import React, { useState, useEffect } from "react";
 import TodoCard from "./TodoCard";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "@/firebase";
 
 export default function UserDashboard() {
-  const { userInfo } = useAuth();
+  const { userInfo, currentUser } = useAuth();
   const [addTodo, setAddTodo] = useState(false);
   const [todo, setTodo] = useState("");
   const [todoList, setTodoList] = useState({});
@@ -28,6 +30,16 @@ export default function UserDashboard() {
       [newKey]: todo,
     });
     setTodo("");
+    const userRef = doc(db, "users", currentUser.uid);
+    await setDoc(
+      userRef,
+      {
+        todos: {
+          [newKey]: todo,
+        },
+      },
+      { merge: true }
+    );
   }
 
   return (
